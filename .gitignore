@@ -40,9 +40,6 @@ Thumbs.db
 
 # Large datasets - exclude large CSV files from git
 Dataset/api_functions.csv
-Dataset/dlls_imported.csv
-Dataset/pe_header.csv
-Dataset/pe_section.csv
 Dataset/merged_data.csv
 Dataset/2ndSource/*.csv
 Dataset/2ndSource/*.zip
