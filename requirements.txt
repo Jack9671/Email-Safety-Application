@@ -9,6 +9,10 @@ numpy>=1.24.0
 scikit-learn>=1.3.0
 xgboost>=2.0.0
 
+# Deep Learning - PyTorch and Transformers
+torch>=2.0.0
+transformers>=4.30.0
+
 # Hyperparameter Optimization
 scikit-optimize>=0.9.0
 
