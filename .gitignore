@@ -39,7 +39,7 @@ wheels/
 Thumbs.db
 
 # Large datasets - exclude large CSV files from git
-Dataset/API_Functions.csv
+Dataset/api_functions.csv
 Dataset/merged_data.csv
 Dataset/2ndSource/*.csv
 Dataset/2ndSource/*.zip
