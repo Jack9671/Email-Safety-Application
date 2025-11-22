@@ -65,8 +65,8 @@ See `requirements.txt` and `frontend/package.json` for complete lists.
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/Jack9671/Spam-and-Malware-Detection-AI-model.git
-cd Spam-and-Malware-Detection-AI-model
+git clone https://github.com/quangthai843/COS30049.git
+cd COS30049
 ```
 
 2. **Install dependencies:**
@@ -74,12 +74,28 @@ cd Spam-and-Malware-Detection-AI-model
 pip install -r requirements.txt
 ```
 
-3. **Verify pefile is installed:**
+3. **⚠️ IMPORTANT: Train the BERT Model First**
+
+The BERT spam detection model is **not included** in the repository (268 MB file). You **must** train it before running the system:
+
+```bash
+# Option 1: Use Jupyter Notebook or VS Code
+# Open email_spam_classification.ipynb and run all cells
+
+# Option 2: Use the setup script
+python setup_models.py
+```
+
+Training takes ~5-10 minutes on CPU, ~1-2 minutes on GPU. The model will be saved to `saved_models/bert_spam_detector/`.
+
+4. **Verify pefile is installed:**
 ```bash
 pip install pefile>=2023.2.7
 ```
 
 ### Running the System
+
+⚠️ **Make sure you've trained the BERT model first (step 3 above)!**
 
 #### Start API Server
 ```powershell

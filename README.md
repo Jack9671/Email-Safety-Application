@@ -50,11 +50,23 @@ python setup_models.py
 ```
 This downloads the base model, but you still need to fine-tune it using the notebook.
 
-### 1. Start Backend (1 command)
+### 1. Start Backend
+
+⚠️ **First time setup**: Make sure you've trained the BERT model (see "Model Setup Required" above)
+
 ```bash
 python app_email_scanner.py
 ```
+
+You should see:
+```
+✓ Model and PE extractor loaded successfully!
+✓ BERT spam detector loaded successfully!
+```
+
 API available at: http://localhost:8000
+
+**If you see "BERT model not found" error**: You need to train the model first using `email_spam_classification.ipynb`
 
 ### 2. Start Frontend
 ```bash
