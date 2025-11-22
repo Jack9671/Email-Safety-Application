@@ -38,13 +38,12 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Large datasets - exclude large CSV files from git
-Dataset/api_functions.csv
-Dataset/merged_data.csv
-Dataset/2ndSource/*.csv
-Dataset/2ndSource/*.zip
+# Exclude entire Dataset folder
+Dataset/
 
-# Model files (optional)
-*.pkl
-*.joblib
-*.model
+# Exclude Jupyter notebooks
+*.ipynb
+
+# Model files - large files
+saved_models/bert_spam_detector/model.safetensors
+saved_models/bert_spam_detector/*.bin
