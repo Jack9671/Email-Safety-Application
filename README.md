@@ -28,6 +28,28 @@ Comprehensive email security system combining **BERT spam detection (99.19% accu
 
 ## 🚀 Quick Start
 
+### Important: Model Setup Required
+
+⚠️ **The BERT model file (268 MB) is too large for GitHub.** You need to set it up first:
+
+#### Option 1: Train the Model Yourself (Recommended)
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Open the training notebook
+# Open email_spam_classification.ipynb in Jupyter or VS Code
+
+# 3. Run all cells in the notebook
+# This will train the BERT model and save it to saved_models/bert_spam_detector/
+```
+
+#### Option 2: Use the Setup Script
+```bash
+python setup_models.py
+```
+This downloads the base model, but you still need to fine-tune it using the notebook.
+
 ### 1. Start Backend (1 command)
 ```bash
 python app_email_scanner.py
@@ -167,20 +189,28 @@ Scans email body for spam (BERT) and attachments for malware (XGBoost).
 
 ## 🛠️ Installation
 
+### Prerequisites
+- Python 3.12.3
+- Node.js 16+ (for frontend)
+- 4GB+ RAM (for training BERT model)
+
 ```bash
 # Clone repository
-git clone https://github.com/Jack9671/Spam-and-Malware-Detection-AI-model.git
-cd Spam-and-Malware-Detection-AI-model
+git clone https://github.com/quangthai843/COS30049.git
+cd COS30049
 
 # Install Python dependencies
 pip install -r requirements.txt
+
+# Train the BERT model (required - see Quick Start above)
+# Open email_spam_classification.ipynb and run all cells
 
 # Install frontend dependencies
 cd frontend
 npm install
 ```
 
-**Note**: Frontend now includes Plotly.js for visualization. Total install size ~100MB.
+**Note**: The trained BERT model is **not included** in the repository due to its 268 MB size. You must train it yourself using `email_spam_classification.ipynb`. Training takes ~5-10 minutes on CPU, ~1-2 minutes on GPU.
 
 ## 📖 Documentation
 
