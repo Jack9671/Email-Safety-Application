@@ -41,6 +41,28 @@ See [STRUCTURE.md](STRUCTURE.md) for detailed directory structure.
 
 ## 🚀 Quick Start
 
+### Prerequisites
+
+**Git LFS Required**: The BERT model (268 MB) is stored using Git LFS. Make sure you have Git LFS installed:
+
+```bash
+# Check if Git LFS is installed
+git lfs version
+
+# If not installed, download from: https://git-lfs.github.com/
+# After installation, run:
+git lfs install
+```
+
+**Clone with LFS**:
+```bash
+git clone https://github.com/quangthai843/COS30049.git
+cd Spam-and-Malware-Detection-AI-model
+
+# Ensure LFS files are pulled
+git lfs pull
+```
+
 **All models are pre-trained and included!** Just install dependencies and run.
 
 ### 1. Start Backend API
