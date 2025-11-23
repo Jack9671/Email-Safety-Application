@@ -97,6 +97,8 @@ async def load_model():
         print(f"  Number of features: {loaded_metadata['n_features']}")
         print(f"  Number of classes: {loaded_metadata['n_classes']}")
         print(f"  Class names: {loaded_metadata['class_names']}")
+        print(f" Recognized PE Header Features: {len(pe_extractor.pe_header_features)}")
+        print(f"  Recognized PE Section Features: {len(pe_extractor.pe_section_features)}")
         print(f"  Recognized DLLs: {len(pe_extractor.dll_list)}")
         print(f"  Recognized APIs: {len(pe_extractor.api_functions)}")
     except Exception as e:
