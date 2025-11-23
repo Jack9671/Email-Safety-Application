@@ -3,6 +3,11 @@ Email Attachment Scanner for Malware Detection
 Processes emails with PE file attachments and predicts malware type
 """
 
+# Set environment variables BEFORE importing transformers to avoid TensorFlow
+import os
+os.environ['TRANSFORMERS_NO_TF'] = '1'
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -87,7 +92,7 @@ async def load_model():
             expected_features=loaded_features
         )
         
-        print("✓ Model and PE extractor loaded successfully!")
+        print("[OK] Model and PE extractor loaded successfully!")
         print(f"  Model type: XGBoost")
         print(f"  Number of features: {loaded_metadata['n_features']}")
         print(f"  Number of classes: {loaded_metadata['n_classes']}")
@@ -108,7 +113,7 @@ async def load_model():
         bert_model.to(bert_device)
         bert_model.eval()
         
-        print("✓ BERT spam detector loaded successfully!")
+        print("[OK] BERT spam detector loaded successfully!")
         print(f"  Model: DistilBERT")
         print(f"  Device: {bert_device}")
         print(f"  Vocabulary size: {bert_tokenizer.vocab_size}")
