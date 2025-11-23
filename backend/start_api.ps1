@@ -29,4 +29,4 @@ Write-Host "====================================================================
 Write-Host ""
 
 # Start the server
-uvicorn app:app --reload --host 0.0.0.0 --port 8000
+uvicorn app_email_scanner:app --reload --host 0.0.0.0 --port 8000
