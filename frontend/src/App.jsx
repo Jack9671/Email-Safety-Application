@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import axios from "axios";
 
+// Pages
 import InboxPage from "./pages/InboxPage";
 import SpamPage from "./pages/SpamPage";
 import MalwarePage from "./pages/MalwarePage";
@@ -51,7 +52,6 @@ function App() {
     setLoading(true);
     setError(null);
     setMalwareResult(null);
-
     const formData = new FormData();
     formData.append("file", file);
 
@@ -67,56 +67,65 @@ function App() {
 
   return (
     <Router>
-      <div className="app-container">
-        <header className="header">
-          <h1>Email Security System</h1>
-          <p>AI-Powered Spam Detection & Malware Scanner</p>
-        </header>
+      <div className="page">
+        {/* Sidebar */}
+        <aside className="sidebar">
+          <div className="sidebar__brand">
+            <h1 className="brand__title">SecureMail</h1>
+            <p className="brand__subtitle">Spam & Malware</p>
+          </div>
 
-        <div className="tabs">
-          <NavLink to="/" className="tab">📬 Inbox</NavLink>
-          <NavLink to="/spam" className="tab">📧 Spam Detection</NavLink>
-          <NavLink to="/malware" className="tab">🦠 Malware Scanner</NavLink>
-        </div>
+          <div className="sidebar__nav">
+            <NavLink to="/" className={({ isActive }) => "nav-item" + (isActive ? " nav-item--active" : "")}>
+              📬 Inbox
+            </NavLink>
+            <NavLink to="/spam" className={({ isActive }) => "nav-item" + (isActive ? " nav-item--active" : "")}>
+              📧 Spam Detection
+            </NavLink>
+            <NavLink to="/malware" className={({ isActive }) => "nav-item" + (isActive ? " nav-item--active" : "")}>
+              🦠 Malware Scanner
+            </NavLink>
+          </div>
 
-        <div className="card">
-          <Routes>
-            <Route path="/" element={<InboxPage apiStatus={apiStatus} />} />
-            <Route
-              path="/spam"
-              element={
-                <SpamPage
-                  apiStatus={apiStatus}
-                  loading={loading}
-                  error={error}
-                  spamResult={spamResult}
-                  onCheck={handleSpamCheck}
-                />
-              }
-            />
-            <Route
-              path="/malware"
-              element={
-                <MalwarePage
-                  apiStatus={apiStatus}
-                  loading={loading}
-                  error={error}
-                  malwareResult={malwareResult}
-                  onUpload={handlePEFileUpload}
-                />
-              }
-            />
-          </Routes>
-        </div>
+          <div className="sidebar__note">
+            <p className="note__title">Next steps</p>
+            <p className="note__desc">Wire actions to FastAPI endpoints (scan, classify, release…)</p>
+          </div>
+        </aside>
 
-        <footer className="footer">
-          <p>
-            Email Security System © 2025 | 
-            <a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer">
-              API Documentation
-            </a>
-          </p>
-        </footer>
+        {/* Main content */}
+        <main className="content">
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<InboxPage apiStatus={apiStatus} />} />
+              <Route
+                path="/spam"
+                element={
+                  <SpamPage
+                    apiStatus={apiStatus}
+                    loading={loading}
+                    error={error}
+                    spamResult={spamResult}
+                    onCheck={handleSpamCheck}
+                  />
+                }
+              />
+              <Route
+                path="/malware"
+                element={
+                  <MalwarePage
+                    apiStatus={apiStatus}
+                    loading={loading}
+                    error={error}
+                    malwareResult={malwareResult}
+                    onUpload={handlePEFileUpload}
+                  />
+                }
+              />
+              <Route path="*" element={<p>Page not found</p>} />
+            </Routes>
+          </div>
+        </main>
       </div>
     </Router>
   );
