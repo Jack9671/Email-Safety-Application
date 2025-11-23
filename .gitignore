@@ -38,12 +38,14 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Exclude entire Dataset folder
+# Exclude Dataset folders (training data not needed for deployment)
 Dataset/
+backend/Dataset/
+**/Dataset/
 
-# Exclude Jupyter notebooks
+# Exclude Jupyter notebooks (training notebooks not needed for deployment)
 *.ipynb
+notebooks/
 
-# Model files - large files
-saved_models/bert_spam_detector/model.safetensors
-saved_models/bert_spam_detector/*.bin
+# Note: All model files in saved_models/ ARE tracked and will be pushed to GitHub
+# This ensures the application is runnable immediately after cloning

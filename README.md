@@ -12,12 +12,13 @@ Comprehensive email security system combining **BERT spam detection (99.19% accu
 ## 📁 Project Structure
 
 ```
-├── backend/          # FastAPI server, ML models, datasets
+├── backend/          # FastAPI server, ML models (ready to run)
 ├── frontend/         # React UI with Plotly visualizations
-├── notebooks/        # Jupyter notebooks for model training
 ├── docs/            # Documentation and reports
 └── README.md        # This file
 ```
+
+**Note**: All trained models are included in the repository. The application is **ready to run immediately** after cloning - no model training required!
 
 See [STRUCTURE.md](STRUCTURE.md) for detailed directory structure.
 
@@ -40,70 +41,25 @@ See [STRUCTURE.md](STRUCTURE.md) for detailed directory structure.
 
 ## 🚀 Quick Start
 
-### Important: Model Setup Required
-
-⚠️ **The BERT model file (268 MB) is too large for GitHub.** You need to set it up first:
-
-#### Option 1: Train the Model Yourself (Recommended)
-```bash
-# 1. Navigate to backend directory
-cd backend
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Open the training notebook
-# Open ../notebooks/email_spam_classification.ipynb in Jupyter or VS Code
-
-# 4. Run all cells in the notebook
-# This will train the BERT model and save it to saved_models/bert_spam_detector/
-```
-
-#### Option 2: Use the Setup Script
-```bash
-cd backend
-python setup_models.py
-```
-This downloads the base model, but you still need to fine-tune it using the notebook.
+**All models are pre-trained and included!** Just install dependencies and run.
 
 ### 1. Start Backend API
 
-⚠️ **First time setup**: Make sure you've trained the BERT model (see "Model Setup Required" above)
-
-#### Method 1: Direct Python Command
 ```bash
 cd backend
+pip install -r requirements.txt
 python app_email_scanner.py
-```
-
-#### Method 2: Using PowerShell Script (Windows)
-```bash
-cd backend
-.\start_api.ps1
-```
-
-#### Method 3: Using Uvicorn Directly
-```bash
-cd backend
-uvicorn app_email_scanner:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 You should see:
 ```
 ✓ Model and PE extractor loaded successfully!
 ✓ BERT spam detector loaded successfully!
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [xxxxx] using WatchFiles
-INFO:     Started server process [xxxxx]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
 API available at: http://localhost:8000
 - Interactive API docs: http://localhost:8000/docs
-- Alternative docs: http://localhost:8000/redoc
-
-**If you see "BERT model not found" error**: You need to train the model first using `email_spam_classification.ipynb`
 
 ### 2. Start Frontend
 ```bash
