@@ -9,6 +9,18 @@
 
 Comprehensive email security system combining **BERT spam detection (99.19% accuracy)** and **XGBoost malware classification (88.75% MCC)**. Connect to your Gmail/Outlook/Yahoo inbox, scan emails for spam, and detect malware in attachments.
 
+## 📁 Project Structure
+
+```
+├── backend/          # FastAPI server, ML models, datasets
+├── frontend/         # React UI with Plotly visualizations
+├── notebooks/        # Jupyter notebooks for model training
+├── docs/            # Documentation and reports
+└── README.md        # This file
+```
+
+See [STRUCTURE.md](STRUCTURE.md) for detailed directory structure.
+
 ## 🎯 What It Does
 
 ### 📧 Email Spam Detection
@@ -34,37 +46,62 @@ Comprehensive email security system combining **BERT spam detection (99.19% accu
 
 #### Option 1: Train the Model Yourself (Recommended)
 ```bash
-# 1. Install dependencies
+# 1. Navigate to backend directory
+cd backend
+
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 2. Open the training notebook
-# Open email_spam_classification.ipynb in Jupyter or VS Code
+# 3. Open the training notebook
+# Open ../notebooks/email_spam_classification.ipynb in Jupyter or VS Code
 
-# 3. Run all cells in the notebook
+# 4. Run all cells in the notebook
 # This will train the BERT model and save it to saved_models/bert_spam_detector/
 ```
 
 #### Option 2: Use the Setup Script
 ```bash
+cd backend
 python setup_models.py
 ```
 This downloads the base model, but you still need to fine-tune it using the notebook.
 
-### 1. Start Backend
+### 1. Start Backend API
 
 ⚠️ **First time setup**: Make sure you've trained the BERT model (see "Model Setup Required" above)
 
+#### Method 1: Direct Python Command
 ```bash
+cd backend
 python app_email_scanner.py
+```
+
+#### Method 2: Using PowerShell Script (Windows)
+```bash
+cd backend
+.\start_api.ps1
+```
+
+#### Method 3: Using Uvicorn Directly
+```bash
+cd backend
+uvicorn app_email_scanner:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 You should see:
 ```
 ✓ Model and PE extractor loaded successfully!
 ✓ BERT spam detector loaded successfully!
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [xxxxx] using WatchFiles
+INFO:     Started server process [xxxxx]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
 ```
 
 API available at: http://localhost:8000
+- Interactive API docs: http://localhost:8000/docs
+- Alternative docs: http://localhost:8000/redoc
 
 **If you see "BERT model not found" error**: You need to train the model first using `email_spam_classification.ipynb`
 

@@ -1,0 +1,72 @@
+
+==============================================================================================================
+                        EMAIL SPAM DETECTION - COMPREHENSIVE REPORT
+                              Using DistilBERT Transformer Model
+==============================================================================================================
+
+1. DATASET INFORMATION
+--------------------------------------------------------------------------------------------------------------
+   Total Samples: 5572
+   Training Samples: 3342 (60.0%)
+   Validation Samples: 1115 (20.0%)
+   Test Samples: 1115 (20.0%)
+
+   Class Distribution (Original):
+   - Ham emails: 4825 (86.6%)
+   - Spam emails: 747 (13.4%)
+
+2. MODEL CONFIGURATION
+--------------------------------------------------------------------------------------------------------------
+   Model: DistilBERT (distilbert-base-uncased)
+   Max Sequence Length: 128
+   Batch Size: 16
+   Learning Rate: 5e-05
+   Number of Epochs: 1
+   Optimizer: Adam
+   Device: cpu
+
+3. TRAINING PERFORMANCE
+--------------------------------------------------------------------------------------------------------------
+   Total Training Time: 15.14 minutes
+   Average Time per Epoch: 908.53 seconds
+
+   Final Training Metrics:
+   - Training Accuracy: 99.37%
+   - Validation Accuracy: 98.74%
+   - Training Loss: 0.0754
+
+   Convergence Analysis:
+   - Loss Reduction: 0.00%
+   - Generalization Gap: 0.63%
+
+4. COMPREHENSIVE TEST SET METRICS (Ordered as Requested)
+--------------------------------------------------------------------------------------------------------------
+   1. Area Under Precision-Recall Curve: 0.9951
+   2. TPR (True Positive Rate / Recall / Sensitivity): 0.9396
+   3. Precision: 1.0000
+   4. Positive F1-Score: 0.9689
+   5. TNR (True Negative Rate / Specificity): 1.0000
+   6. NPV (Negative Predictive Value): 0.9908
+   7. FPR (False Positive Rate): 0.0000
+   8. FNR (False Negative Rate): 0.0604
+   9. MCC (Matthews Correlation Coefficient): 0.9648
+
+   Additional Metrics:
+   - Accuracy: 0.9919 (99.19%)
+
+5. CONFUSION MATRIX ANALYSIS
+--------------------------------------------------------------------------------------------------------------
+   True Negatives (Ham → Ham): 966 (86.64%)
+   False Positives (Ham → Spam): 0 (0.00%)
+   False Negatives (Spam → Ham): 9 (0.81%)
+   True Positives (Spam → Spam): 140 (12.56%)
+
+   Error Analysis:
+   - Total Errors: 9 (0.81%)
+   - Ham Misclassified as Spam: 0
+   - Spam Misclassified as Ham: 9
+
+
+==============================================================================================================
+                                    END OF REPORT
+==============================================================================================================
