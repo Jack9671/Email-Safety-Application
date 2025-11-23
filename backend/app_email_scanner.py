@@ -63,7 +63,7 @@ async def load_model():
     
     # Load XGBoost malware detection model
     try:
-        models_dir = Path('./backend/saved_models/xgboost')
+        models_dir = Path('./saved_models/xgboost')
         print(f"models_dir: {models_dir}")
         loaded_model = joblib.load(models_dir / 'xgboost_best_model.joblib')
         loaded_encoder = joblib.load(models_dir / 'xgboost_label_encoder.joblib')
