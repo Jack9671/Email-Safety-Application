@@ -20,10 +20,10 @@ function PEFileUpload({ onUpload, loading, apiStatus }) {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) { // 50MB limit
-      alert('File size must be less than 50MB');
-      return;
-    }
+  //  if (file.size > 50 * 1024 * 1024) { // 50MB limit
+  //    alert('File size must be less than 50MB');
+  //    return;
+  //  }
 
     setSelectedFile(file);
   };

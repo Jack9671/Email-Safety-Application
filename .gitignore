@@ -46,6 +46,9 @@ backend/Dataset/
 # Exclude Jupyter notebooks (training notebooks not needed for deployment)
 *.ipynb
 notebooks/
-
+#exlude node_modules
+node_modules/
+# Exclude .venv folders
+.venv/
 # Note: All model files in saved_models/ ARE tracked and will be pushed to GitHub
 # This ensures the application is runnable immediately after cloning

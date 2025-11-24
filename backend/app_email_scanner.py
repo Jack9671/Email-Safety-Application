@@ -63,8 +63,8 @@ async def load_model():
     
     # Load XGBoost malware detection model
     try:
-        models_dir = Path('./saved_models/xgboost')
-        
+        models_dir = Path('./backend/saved_models/xgboost')
+        print(f"models_dir: {models_dir}")
         loaded_model = joblib.load(models_dir / 'xgboost_best_model.joblib')
         loaded_encoder = joblib.load(models_dir / 'xgboost_label_encoder.joblib')
         loaded_features = joblib.load(models_dir / 'xgboost_top_features.joblib')
@@ -105,7 +105,7 @@ async def load_model():
     
     # Load BERT spam detection model
     try:
-        bert_dir = Path('./saved_models/bert_spam_detector')
+        bert_dir = Path('./backend/saved_models/bert_spam_detector')
         bert_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         bert_tokenizer = DistilBertTokenizerFast.from_pretrained(bert_dir)

@@ -1,3 +1,6 @@
+@import "tailwindcss";
+
+
 * {
   margin: 0;
   padding: 0;
@@ -1194,4 +1197,96 @@ code {
 .form-group select:disabled {
   background: #f5f5f5;
   cursor: not-allowed;
+}
+
+/* Sidebar Container */
+.sidebar {
+  width: 260px;
+  min-height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+}
+
+/* Sidebar Brand */
+.sidebar__brand {
+  margin-bottom: 40px;
+}
+
+.sidebar__brand .brand__title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #2d2d2d;
+}
+
+.sidebar__brand .brand__subtitle {
+  font-size: 0.9rem;
+  color: #6b6b6b;
+}
+
+/* Sidebar Navigation */
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+/* Nav Links */
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  color: #2d2d2d;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #f5f5f5;
+}
+
+.nav-item--active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Sidebar Divider */
+.sidebar__divider {
+  height: 1px;
+  background: #e5e5e5;
+  margin: 20px 0;
+}
+
+/* Sidebar Note / Footer */
+.sidebar__note {
+  font-size: 0.8rem;
+  color: #6b6b6b;
+  margin-top: auto;
+}
+
+.sidebar__note .note__title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.sidebar__note .note__desc {
+  line-height: 1.4;
+}
+
+/* Main Content Adjustment */
+.content {
+  margin-left: 260px; /* same as sidebar width */
+  padding: 20px;
 }
