@@ -21,12 +21,11 @@ import shutil
 import torch
 import torch.nn.functional as F
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
 from pe_feature_extractor import PEFeatureExtractor
 from email_fetcher import EmailFetcher
 
-import gdown
-import zipfile
-import io
 app = FastAPI(
     title="Email Security API",
     description="Detect spam emails and scan PE file attachments for malware",
@@ -57,71 +56,25 @@ bert_device = None
 bert_max_length = 128
 
 
-# Put this helper above your load_model function
-def download_and_extract_gdrive_zip(gdrive_file_id: str, dest_dir: Path, zip_name: str = "model.zip"):
-    """
-    Downloads a Google Drive file (by id) and extracts it to dest_dir.
-    If the downloaded file is not a zip, attempts to save it as-is.
-    """
-    dest_dir = Path(dest_dir)
-    dest_dir.mkdir(parents=True, exist_ok=True)
-
-    # direct download URL for Google Drive
-    gdrive_url = f"https://drive.google.com/uc?id={gdrive_file_id}"
-
-    zip_path = dest_dir / zip_name
-
-    try:
-        print(f"Downloading model from Google Drive id={gdrive_file_id} ...")
-        # gdown will follow redirects and handle large files
-        gdown.download(gdrive_url, str(zip_path), quiet=False)
-
-        # If it's a zip, extract. If not, keep as a file.
-        if zipfile.is_zipfile(zip_path):
-            print("Extracting ZIP...")
-            with zipfile.ZipFile(zip_path, 'r') as zf:
-                zf.extractall(dest_dir)
-            print("Extraction complete.")
-            try:
-                zip_path.unlink()  # remove zip after extraction
-            except Exception:
-                pass
-        else:
-            print("Downloaded file is not a ZIP. Make sure Drive file is a zipped folder if you expect multiple files.")
-    except Exception as e:
-        # If download fails, remove possible partial file and re-raise
-        if zip_path.exists():
-            try:
-                zip_path.unlink()
-            except Exception:
-                pass
-        raise RuntimeError(f"Failed to download/extract from Google Drive: {e}")
-
-
 @app.on_event("startup")
 async def load_model():
     """Load models: XGBoost for malware detection and BERT for spam detection"""
     global loaded_model, loaded_encoder, loaded_features, loaded_scaler_header
     global loaded_scaler_section, loaded_metadata, pe_extractor
     global bert_model, bert_tokenizer, bert_device
-
-    # compute project base directory relative to this file (robust across envs)
-    base_dir = Path(__file__).resolve().parent
-    saved_models_dir = base_dir / "saved_models"
-
-    # -----------------------
-    # XGBoost loading (unchanged)
-    # -----------------------
+    
+    # Load XGBoost malware detection model
     try:
-        xgb_dir = saved_models_dir / "xgboost"
-        print(f"Loading XGBoost from: {xgb_dir}")
-        loaded_model = joblib.load(xgb_dir / 'xgboost_best_model.joblib')
-        loaded_encoder = joblib.load(xgb_dir / 'xgboost_label_encoder.joblib')
-        loaded_features = joblib.load(xgb_dir / 'xgboost_top_features.joblib')
-        loaded_scaler_header = joblib.load(xgb_dir / 'xgboost_scaler_header.joblib')
-        loaded_scaler_section = joblib.load(xgb_dir / 'xgboost_scaler_section.joblib')
-        loaded_metadata = joblib.load(xgb_dir / 'xgboost_metadata.joblib')
-        # map class names (keep your logic)
+        models_dir = Path('./backend/saved_models/xgboost')
+        print(f"models_dir: {models_dir}")
+        loaded_model = joblib.load(models_dir / 'xgboost_best_model.joblib')
+        loaded_encoder = joblib.load(models_dir / 'xgboost_label_encoder.joblib')
+        loaded_features = joblib.load(models_dir / 'xgboost_top_features.joblib')
+        loaded_scaler_header = joblib.load(models_dir / 'xgboost_scaler_header.joblib')
+        loaded_scaler_section = joblib.load(models_dir / 'xgboost_scaler_section.joblib')
+        loaded_metadata = joblib.load(models_dir / 'xgboost_metadata.joblib')
+        
+        # Malware family names mapping
         malware_family_names = {
             0: 'Benign',
             1: 'RedLineStealer',
@@ -131,66 +84,58 @@ async def load_model():
             5: 'SnakeKeyLogger',
             6: 'Spyware'
         }
+        
         loaded_encoder.classes_ = np.array([malware_family_names[i] for i in range(len(loaded_encoder.classes_))])
         loaded_metadata['class_names'] = [malware_family_names[i] for i in range(loaded_metadata['n_classes'])]
+        
+        # Initialize PE extractor with expected features to filter DLLs/APIs
         pe_extractor = PEFeatureExtractor(
-            model_features_path=xgb_dir / 'xgboost_top_features.joblib',
+            model_features_path=models_dir / 'xgboost_top_features.joblib',
             expected_features=loaded_features
         )
-        print("[OK] XGBoost loaded.")
+        
+        print("[OK] Model and PE extractor loaded successfully!")
+        print(f"  Model type: XGBoost")
+        print(f"  Number of features: {loaded_metadata['n_features']}")
+        print(f"  Number of classes: {loaded_metadata['n_classes']}")
+        print(f"  Class names: {loaded_metadata['class_names']}")
+        print(f" Recognized PE Header Features: {len(pe_extractor.pe_header_features)}")
+        print(f"  Recognized PE Section Features: {len(pe_extractor.pe_section_features)}")
+        print(f"  Recognized DLLs: {len(pe_extractor.dll_list)}")
+        print(f"  Recognized APIs: {len(pe_extractor.api_functions)}")
     except Exception as e:
-        print(f"Error loading XGBoost model: {e}")
+        print(f"Error loading XGBoost model: {str(e)}")
         raise
-
+    
+       # -----------------------
+    # BERT loading: load from Hugging Face Hub (private repo supported via HF_TOKEN)
     # -----------------------
-    # BERT loading: download from Google Drive if missing, then load
-    # -----------------------
-    # Put your Google Drive file id here (from the share link you gave)
-    GDRIVE_BERT_FILE_ID = "1GkRYno-HpfnvJgK1ZSCNjxIcLsel4Pyo"
-
     try:
-        bert_dir = saved_models_dir / "bert_spam_detector"
+        hf_repo = "ThaiNguyen12345/Bert_Model"
+        hf_token = os.environ.get("HF_TOKEN")  # set this in Vercel environment variables
 
-        # If the directory doesn't exist or seems incomplete, download & extract
-        need_download = True
-        # check presence of key files that a transformers model expects
-        if bert_dir.exists():
-            files_present = {p.name for p in bert_dir.iterdir() if p.is_file()}
-            # typical files: config.json and pytorch_model.bin or tf_model.h5 or tokenizer files
-            if ("config.json" in files_present and
-                ("pytorch_model.bin" in files_present or "tf_model.h5" in files_present or "pytorch_model.bin.index.json" in files_present)):
-                need_download = False
-
-        if need_download:
-            # create parent saved_models dir and then download
-            saved_models_dir.mkdir(parents=True, exist_ok=True)
-            download_and_extract_gdrive_zip(GDRIVE_BERT_FILE_ID, bert_dir.parent, zip_name="bert_model.zip")
-            # If the zip extracted into a folder with a different name, try to relocate:
-            # common case: the zip contains a top-level folder like "bert_spam_detector"
-            # If bert_dir doesn't exist but some folder was extracted, attempt to find it
-            if not bert_dir.exists():
-                # look for a folder containing config.json
-                for candidate in bert_dir.parent.iterdir():
-                    if candidate.is_dir() and (candidate / "config.json").exists():
-                        # rename/move to expected bert_dir
-                        candidate.rename(bert_dir)
-                        break
-
-        # load tokenizer & model from local folder
         bert_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        bert_tokenizer = DistilBertTokenizerFast.from_pretrained(str(bert_dir))
-        bert_model = DistilBertForSequenceClassification.from_pretrained(str(bert_dir))
+
+        # Use AutoTokenizer/AutoModel to accommodate model.safetensors and different architectures
+        if hf_token:
+            bert_tokenizer = AutoTokenizer.from_pretrained(hf_repo, use_auth_token=hf_token)
+            bert_model = AutoModelForSequenceClassification.from_pretrained(hf_repo, use_auth_token=hf_token)
+        else:
+            # public repo fallback (no token)
+            bert_tokenizer = AutoTokenizer.from_pretrained(hf_repo)
+            bert_model = AutoModelForSequenceClassification.from_pretrained(hf_repo)
+
         bert_model.to(bert_device)
         bert_model.eval()
 
-        print("[OK] BERT spam detector loaded successfully!")
-        print(f"  Model: DistilBERT")
+        print("[OK] BERT spam detector loaded successfully from Hugging Face Hub!")
+        print(f"  Model repo: {hf_repo}")
         print(f"  Device: {bert_device}")
         print(f"  Vocab size: {getattr(bert_tokenizer, 'vocab_size', 'N/A')}")
     except Exception as e:
-        print(f"Warning: BERT model not loaded: {e}")
-        print(" Spam detection will not be available.")
-        # do not raise here so that the service can still run for PE scanning
+        print(f"Warning: BERT model not loaded from Hugging Face: {e}")
+        print("  Spam detection will not be available (falling back to XGBoost only).")
+        # keep service running for PE scanning; do not re-raise
 
 
 class ScanResult(BaseModel):
