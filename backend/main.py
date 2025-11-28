@@ -22,6 +22,7 @@ import torch
 import torch.nn.functional as F
 from transformers import DistilBertTokenizerFast, DistilBertForSequenceClassification
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from huggingface_hub import hf_hub_download
 
 from pe_feature_extractor import PEFeatureExtractor
 from email_fetcher import EmailFetcher
@@ -63,18 +64,55 @@ async def load_model():
     global loaded_scaler_section, loaded_metadata, pe_extractor
     global bert_model, bert_tokenizer, bert_device
     
-    # Load XGBoost malware detection model
+    # -----------------------
+    # XGBoost loading: download artifacts from Hugging Face Hub if missing, then load via joblib
+    # -----------------------
     try:
-        models_dir = Path('./backend/saved_models/xgboost')
-        print(f"models_dir: {models_dir}")
+        hf_repo_xgb = "ThaiNguyen12345/xgboost"   # your HF repo
+        hf_token = os.environ.get("HF_TOKEN")
+
+        # local target dir inside runtime (not committed)
+        models_dir = Path(__file__).resolve().parent / "saved_models" / "xgboost"
+        models_dir.mkdir(parents=True, exist_ok=True)
+
+        # list of artifact filenames you uploaded
+        xgb_files = [
+            "xgboost_best_model.joblib",
+            "xgboost_label_encoder.joblib",
+            "xgboost_top_features.joblib",
+            "xgboost_scaler_header.joblib",
+            "xgboost_scaler_section.joblib",
+            "xgboost_metadata.joblib"
+        ]
+
+        # download any missing files
+        for fname in xgb_files:
+            local_path = models_dir / fname
+            if not local_path.exists():
+                print(f"Downloading {fname} from HF repo {hf_repo_xgb} ...")
+                # hf_hub_download will stream the file to disk and return local path
+                try:
+                    downloaded = hf_hub_download(
+                        repo_id=hf_repo_xgb,
+                        filename=fname,
+                        repo_type="model",
+                        use_auth_token=hf_token
+                    )
+                    # hf_hub_download returns path in HF cache; copy to our models_dir
+                    shutil.copy(downloaded, str(local_path))
+                except Exception as e:
+                    print(f"Failed to download {fname}: {e}")
+                    raise
+
+        # now load with joblib
         loaded_model = joblib.load(models_dir / 'xgboost_best_model.joblib')
         loaded_encoder = joblib.load(models_dir / 'xgboost_label_encoder.joblib')
         loaded_features = joblib.load(models_dir / 'xgboost_top_features.joblib')
         loaded_scaler_header = joblib.load(models_dir / 'xgboost_scaler_header.joblib')
         loaded_scaler_section = joblib.load(models_dir / 'xgboost_scaler_section.joblib')
         loaded_metadata = joblib.load(models_dir / 'xgboost_metadata.joblib')
-        
-        # Malware family names mapping
+
+        # map class names as before...
         malware_family_names = {
             0: 'Benign',
             1: 'RedLineStealer',
@@ -84,29 +122,19 @@ async def load_model():
             5: 'SnakeKeyLogger',
             6: 'Spyware'
         }
-        
         loaded_encoder.classes_ = np.array([malware_family_names[i] for i in range(len(loaded_encoder.classes_))])
         loaded_metadata['class_names'] = [malware_family_names[i] for i in range(loaded_metadata['n_classes'])]
-        
-        # Initialize PE extractor with expected features to filter DLLs/APIs
+
         pe_extractor = PEFeatureExtractor(
             model_features_path=models_dir / 'xgboost_top_features.joblib',
             expected_features=loaded_features
         )
-        
-        print("[OK] Model and PE extractor loaded successfully!")
-        print(f"  Model type: XGBoost")
-        print(f"  Number of features: {loaded_metadata['n_features']}")
-        print(f"  Number of classes: {loaded_metadata['n_classes']}")
-        print(f"  Class names: {loaded_metadata['class_names']}")
-        print(f" Recognized PE Header Features: {len(pe_extractor.pe_header_features)}")
-        print(f"  Recognized PE Section Features: {len(pe_extractor.pe_section_features)}")
-        print(f"  Recognized DLLs: {len(pe_extractor.dll_list)}")
-        print(f"  Recognized APIs: {len(pe_extractor.api_functions)}")
+
+        print("[OK] XGBoost loaded from Hugging Face!")
     except Exception as e:
-        print(f"Error loading XGBoost model: {str(e)}")
+        print(f"Error loading XGBoost model: {e}")
         raise
-    
+
        # -----------------------
     # BERT loading: load from Hugging Face Hub (private repo supported via HF_TOKEN)
     # -----------------------
