@@ -7,7 +7,7 @@ import InboxPage from "./pages/InboxPage";
 import SpamPage from "./pages/SpamPage";
 import MalwarePage from "./pages/MalwarePage";
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "https://email-safety-application-19sx.vercel.app";
 
 function App() {
   const [apiStatus, setApiStatus] = useState({ online: false, checking: true });
