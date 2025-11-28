@@ -33,9 +33,14 @@ app = FastAPI(
     version="3.0.0"
 )
 
+origins = [
+    "https://email-safety-application-1ak2.vercel.app",  # your frontend
+    "http://localhost:3000",  # local dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
