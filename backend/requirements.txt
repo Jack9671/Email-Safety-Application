@@ -32,3 +32,4 @@ requests>=2.31.0
 
 # PE File Analysis
 pefile>=2023.2.7
+gdown
